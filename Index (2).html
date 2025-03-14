@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Menu</title>
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/arcade-classic');
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(90deg, red, blue, green, yellow);
+            background-size: 400% 400%;
+            animation: rgbBg 5s infinite alternate;
+            color: white;
+            font-family: 'Arcade Classic', sans-serif;
+            overflow: hidden;
+            flex-direction: column;
+            position: relative;
+            text-align: center;
+        }
+
+        @keyframes rgbBg {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        .profile-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .profile-pic {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: url('https://cdn-icons-png.flaticon.com/512/847/847969.png') center/cover;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .logout-btn, button {
+            margin-top: 10px;
+            padding: 10px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Arcade Classic', sans-serif;
+        }
+
+        .creator {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <audio id="buttonSound" src="https://www.myinstants.com/media/sounds/click.mp3"></audio>
+    
+    <div class="signup-container" id="signupContainer">
+        <h2>Sign Up</h2>
+        <input type="text" id="nickname" placeholder="Nama Panggilan">
+        <input type="text" id="hobby" placeholder="Hobi">
+        <button onclick="playSound(); submitForm()">Sign Up</button>
+    </div>
+
+    <div class="profile-container" id="mainMenu">
+        <div class="profile-pic" onclick="playSound(); document.getElementById('profileInput').click();"></div>
+        <input type="file" id="profileInput" accept="image/*" onchange="playSound(); changeProfile()">
+        <h2 id="userName"></h2>
+        <p id="userHobby"></p>
+        <p id="userDevice"></p>
+        <button class="logout-btn" onclick="playSound(); logout()">Log Out</button>
+    </div>
+
+    <p class="creator">Dibuat oleh Hafizh Ganteng</p>
+
+    <script>
+        function playSound() {
+            document.getElementById('buttonSound').play();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            let storedName = localStorage.getItem("nickname");
+            let storedHobby = localStorage.getItem("hobby");
+            let storedProfile = localStorage.getItem("profilePic");
+            let device = /Android|iPhone/i.test(navigator.userAgent) ? "Phone Device" : "Komputer Device";
+
+            if (storedName && storedHobby) {
+                showMainMenu(storedName, storedHobby, storedProfile, device);
+            }
+        });
+
+        function submitForm() {
+            let nickname = document.getElementById('nickname').value;
+            let hobby = document.getElementById('hobby').value;
+            let device = /Android|iPhone/i.test(navigator.userAgent) ? "Phone Device" : "Komputer Device";
+            
+            if(nickname && hobby) {
+                localStorage.setItem("nickname", nickname);
+                localStorage.setItem("hobby", hobby);
+                showMainMenu(nickname, hobby, null, device);
+            } else {
+                alert('Isi semua field dulu!');
+            }
+        }
+
+        function showMainMenu(name, hobby, profile, device) {
+            document.getElementById('signupContainer').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+            document.getElementById('userName').innerText = name;
+            document.getElementById('userHobby').innerText = "Hobi: " + hobby;
+            document.getElementById('userDevice').innerText = "Device: " + device;
+            if (profile) {
+                document.querySelector('.profile-pic').style.background = `url('${profile}') center/cover`;
+            }
+        }
+
+        function changeProfile() {
+            let file = document.getElementById('profileInput').files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    document.querySelector('.profile-pic').style.background = `url('${e.target.result}') center/cover`;
+                    localStorage.setItem("profilePic", e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("nickname");
+            localStorage.removeItem("hobby");
+            localStorage.removeItem("profilePic");
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('signupContainer').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
